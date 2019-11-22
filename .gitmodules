@@ -1,0 +1,3 @@
+[submodule "modules/terraform-aws-eks"]
+	path = modules/terraform-aws-eks
+	url = https://github.com/terraform-aws-modules/terraform-aws-eks.git
