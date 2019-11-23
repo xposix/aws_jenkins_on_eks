@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "./modules/terraform-aws-vpc"
+  source = "github.com/terraform-aws-modules/terraform-aws-vpc?ref=v2.18.0"
 
   name = "my-vpc"
   cidr = "10.10.10.0/23"

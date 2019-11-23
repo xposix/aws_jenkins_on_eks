@@ -1,5 +1,5 @@
 module "eks-cluster" {
-  source = "./modules/terraform-aws-eks"
+  source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v7.0.0"
   cluster_name = "mytests"
   subnets      = "${vpc.private_subnets}"
   vpc_id       = "${vpc.vpc_id}"

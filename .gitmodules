@@ -1,6 +1,0 @@
-[submodule "modules/terraform-aws-eks"]
-	path = modules/terraform-aws-eks
-	url = https://github.com/terraform-aws-modules/terraform-aws-eks.git
-[submodule "modules/terraform-aws-vpc"]
-	path = modules/terraform-aws-vpc
-	url = https://github.com/terraform-aws-modules/terraform-aws-vpc.git
