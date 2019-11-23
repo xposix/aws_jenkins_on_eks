@@ -1,8 +1,8 @@
 module "eks-cluster" {
   source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v7.0.0"
   cluster_name = "mytests"
-  subnets      = "${vpc.private_subnets}"
-  vpc_id       = "${vpc.vpc_id}"
+  subnets      = "${module.vpc.private_subnets}"
+  vpc_id       = "${module.vpc.vpc_id}"
 
   worker_groups = [
     {
