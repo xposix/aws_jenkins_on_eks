@@ -5,14 +5,14 @@ app-plan:
 app-apply: 
 	cd app; terraform apply
 init:
-	cd tf; terraform init
+	cd 1-ec2base; terraform init
 
 plan:
-	cd tf; terraform plan
+	cd 1-ec2base; terraform plan
 
 apply: 
-	cd tf; terraform apply
-	cd k8sbase; make install
+	cd 1-ec2base; terraform apply
+	#cd 2-k8sbase; make install
 
 deploy: apply
 
@@ -29,4 +29,4 @@ mac-install:
 	brew upgrade aws-iam-authenticator helm terraform
 
 destroy:
-	cd tf; terraform destroy
+	cd 1-ec2base; terraform destroy

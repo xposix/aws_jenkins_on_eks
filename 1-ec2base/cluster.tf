@@ -9,6 +9,7 @@ module "eks-cluster" {
       instance_type = "t3.large"
       asg_max_size  = 2
       autoscaling_enabled = true
+      key_name = "rubensancho"
       tags = [{
         key                 = "foo"
         value               = "bar"

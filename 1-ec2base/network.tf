@@ -1,5 +1,5 @@
 module "vpc" {
-  source = "github.com/terraform-aws-modules/terraform-aws-vpc?ref=v2.18.0"
+  source = "github.com/terraform-aws-modules/terraform-aws-vpc?ref=v2.21.0"
 
   name = "my-vpc"
   cidr = "10.10.10.0/23"
@@ -11,6 +11,8 @@ module "vpc" {
   enable_nat_gateway = true
   enable_vpn_gateway = true
   single_nat_gateway = true
+  enable_dns_hostnames = true
+  enable_dns_support   = true
 
   tags = {
     Terraform = "true"
