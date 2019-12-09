@@ -17,5 +17,6 @@ module "vpc" {
   tags = {
     Terraform = "true"
     Environment = "dev"
+    "kubernetes.io/cluster/mytests" = "shared"
   }
 }
