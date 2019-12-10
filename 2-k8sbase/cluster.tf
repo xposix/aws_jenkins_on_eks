@@ -17,10 +17,19 @@ module "eks-cluster" {
         value               = "bar"
         propagate_at_launch = true
       }]
+      worker_additional_security_group_ids = [
+        aws_security_group.EFS_client
+      ]
     }
   ]
 
   tags = {
     environment = "test"
   }
+}
+
+resource "aws_security_group" "EFS_client" {
+  name        = "EFS_client"
+  description = "Allow EFS outbound traffic"
+  vpc_id      = data.terraform_remote_state.networking.outputs.vpc_id
 }
