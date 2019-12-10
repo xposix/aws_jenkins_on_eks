@@ -2,6 +2,10 @@ output "vpc_id" {
   value = "${module.vpc.vpc_id}"
 }
 
+output "private_subnets" {
+  value = "${module.vpc.private_subnets}"
+}
+
 output "sn_az1" {
   value = element("${module.vpc.private_subnets}",0)
 }

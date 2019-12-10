@@ -1,0 +1,24 @@
+data "aws_region" "current" {}
+
+resource "helm_release" "efs-provisioner" {
+  name      = "efs-provisioner"
+  chart     = "stable/efs-provisioner"
+  namespace = "development"
+
+  set {
+    name  = "efsProvisioner.efsFileSystemId"
+    value = aws_efs_file_system.pdl.id
+  }
+
+  set {
+    name  = "efsProvisioner.awsRegion"
+    value = data.aws_region.current.name
+  }
+
+  depends_on = [
+    aws_efs_file_system.pdl,
+    aws_efs_mount_target.az1,
+    aws_efs_mount_target.az2,
+    module.eks-cluster
+  ]
+}

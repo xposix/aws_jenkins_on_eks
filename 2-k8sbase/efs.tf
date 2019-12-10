@@ -1,21 +1,3 @@
-data "aws_region" "current" {}
-
-resource "helm_release" "efs-provisioner" {
-  name      = "efs-provisioner"
-  chart     = "stable/efs-provisioner"
-  namespace = "development"
-
-  set {
-    name  = "efsProvisioner.efsFileSystemId"
-    value = aws_efs_file_system.pdl.id
-  }
-
-  set {
-    name  = "efsProvisioner.awsRegion"
-    value = data.aws_region.current.name
-  }
-}
-
 resource "aws_efs_file_system" "pdl" {
   creation_token   = "Test-pdl"
   performance_mode = "generalPurpose"

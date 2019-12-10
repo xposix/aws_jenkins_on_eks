@@ -16,16 +16,17 @@ plan:
 	cd 2-k8sbase; terraform plan
 
 apply: 
-	cd 1-ec2base; terraform apply -auto-approve;
+	cd 1-ec2base; terraform apply -auto-approve; 
+	aws eks --region eu-west-1 update-kubeconfig --name mytests
 	cd 2-k8sbase; kubectl apply -f namespace-dev.json; terraform apply -auto-approve
 deploy: apply
 
 app-init:
-	cd app; terraform init
+	cd 3-jenkins terraform init
 app-plan:
-	cd app; terraform plan
+	cd 3-jenkins terraform plan
 app-apply: 
-	cd app; terraform apply -auto-approve
+	cd 3-jenkins terraform apply -auto-approve
 app-deploy:
 	helm install -f helm/jenkins_params.yaml my-jenkins stable/jenkins
 app-destroy:
