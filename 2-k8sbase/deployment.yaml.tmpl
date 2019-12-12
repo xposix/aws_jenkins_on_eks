@@ -48,7 +48,7 @@ spec:
       volumes:
         - name: pv-volume
           nfs:
-            server: fs-f9177232.efs.eu-west-1.amazonaws.com
+            server: ${fsid}.efs.${region}.amazonaws.com
             path: /
 
 ---

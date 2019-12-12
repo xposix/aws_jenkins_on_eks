@@ -25,7 +25,7 @@ resource "aws_efs_mount_target" "az2" {
 }
 
 resource "aws_security_group" "EFS" {
-  name        = "Efs"
+  name        = "SGEFS"
   description = "Allow EFS inbound traffic"
   vpc_id      = data.terraform_remote_state.networking.outputs.vpc_id
 
@@ -49,4 +49,30 @@ resource "aws_security_group_rule" "OutboundEFS" {
   protocol                 = "tcp"
   source_security_group_id = aws_security_group.EFS.id
   security_group_id        = aws_security_group.EFS_client.id
+}
+
+data "template_file" "configmap" {
+  template = "${path.module}/configmap.yaml.tmpl"
+  vars {
+    fsid = aws_efs_file_system.pdl.id
+    region = "eu-west-1"
+  }
+}
+resource "null_resource" "export_rendered_template_configmap" {
+  provisioner "local-exec" {
+    command = "cat > configmap.yaml <<EOL\n${data.template_file.configmap.rendered}\nEOL"
+  }
+}
+
+data "template_file" "deployment" {
+  template = "${path.module}/deployment.yaml.tmpl"
+  vars {
+    fsid = aws_efs_file_system.pdl.id
+    region = "eu-west-1"
+  }
+}
+resource "null_resource" "export_rendered_template_deployment" {
+  provisioner "local-exec" {
+    command = "cat > configmap.yaml <<EOL\n${data.template_file.deployment.rendered}\nEOL"
+  }
 }

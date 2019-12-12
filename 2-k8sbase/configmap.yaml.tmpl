@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: efs-provisioner
 data:
-  file.system.id: fs-f9177232
-  aws.region: eu-west-1
+  file.system.id: ${fsid}
+  aws.region: ${region}
   provisioner.name: example.com/aws-efs
   dns.name: ""

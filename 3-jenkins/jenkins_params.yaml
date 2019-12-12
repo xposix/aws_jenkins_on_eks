@@ -27,6 +27,9 @@ master:
     - git
     - workflow-job
     - blueocean
+    - simple-theme-plugin
+  healthProbeLivenessInitialDelay: 300
+  healthProbeReadinessInitialDelay: 240
 
 agent:
   enabled: true
