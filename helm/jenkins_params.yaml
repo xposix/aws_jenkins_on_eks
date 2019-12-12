@@ -12,6 +12,7 @@ master:
   loadBalancerSourceRanges: 
     - 77.97.149.36/32
     - 89.89.89.89/32
+    - 185.100.71.242/32
   ingress:
     enabled: true
   # JCasC:
@@ -98,5 +99,5 @@ agent:
 persistence:
   enabled: true
   accessMode: ReadWriteMany
-  size: 20Gi
   subPath: jenkins
+  storageClass: aws-efs
