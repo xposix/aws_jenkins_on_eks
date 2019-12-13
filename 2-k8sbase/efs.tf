@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 resource "aws_efs_file_system" "pdl" {
   creation_token   = "Test-pdl"
   performance_mode = "generalPurpose"
@@ -51,28 +53,12 @@ resource "aws_security_group_rule" "OutboundEFS" {
   security_group_id        = aws_security_group.EFS_client.id
 }
 
-data "template_file" "configmap" {
-  template = "${path.module}/configmap.yaml.tmpl"
-  vars {
-    fsid = aws_efs_file_system.pdl.id
-    region = "eu-west-1"
-  }
-}
-resource "null_resource" "export_rendered_template_configmap" {
-  provisioner "local-exec" {
-    command = "cat > configmap.yaml <<EOL\n${data.template_file.configmap.rendered}\nEOL"
-  }
+resource "local_file" "configmap" {
+  content  = templatefile("${path.module}/configmap.yaml.tmpl", { fsid = aws_efs_file_system.pdl.id, region = data.aws_region.current.name })
+  filename = "${path.module}/configmap.yaml"
 }
 
-data "template_file" "deployment" {
-  template = "${path.module}/deployment.yaml.tmpl"
-  vars {
-    fsid = aws_efs_file_system.pdl.id
-    region = "eu-west-1"
-  }
-}
-resource "null_resource" "export_rendered_template_deployment" {
-  provisioner "local-exec" {
-    command = "cat > configmap.yaml <<EOL\n${data.template_file.deployment.rendered}\nEOL"
-  }
+resource "local_file" "deployment" {
+  content  = templatefile("${path.module}/deployment.yaml.tmpl", { fsid = aws_efs_file_system.pdl.id, region = data.aws_region.current.name })
+  filename = "${path.module}/deployment.yaml"
 }
