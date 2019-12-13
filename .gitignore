@@ -1,3 +1,5 @@
 .terraform
 terraform.tfstate.backup
 terraform.tfstate
+2-k8sbase/configmap.yaml
+2-k8sbase/deployment.yaml
