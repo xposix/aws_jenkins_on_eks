@@ -1,4 +1,4 @@
-# aws_eks
+# AWS EKS-based Services VPC
 This project aims to create a blueprint of a complete Services VPC, fully containerised and based on AWS EKS, Terraform and Helm
 
 # Requirements
