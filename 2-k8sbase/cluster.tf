@@ -11,7 +11,7 @@ module "eks-cluster" {
       asg_max_size  = 2
       autoscaling_enabled = true
       # public_ip = false
-      key_name = "rubensancho"
+      key_name = ""
       tags = [{
         key                 = "foo"
         value               = "bar"
