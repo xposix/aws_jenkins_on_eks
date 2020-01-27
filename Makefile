@@ -23,7 +23,7 @@ apply:
 	kubectl apply -f 2-k8sbase/deployment.yaml
 deploy: apply
 app-deploy:
-	helm install -f helm/jenkins_params.yaml my-jenkins stable/jenkins
+	helm upgrade --install -f 3-jenkins/jenkins_params.yaml my-jenkins stable/jenkins
 app-destroy:
 	helm delete my-jenkins
 destroy-all: app-destroy destroy
