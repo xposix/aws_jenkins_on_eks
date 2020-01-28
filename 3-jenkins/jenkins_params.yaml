@@ -10,9 +10,7 @@ master:
       cpu: 2000m 
       memory: 4096Mi
   loadBalancerSourceRanges: 
-    - 77.97.149.36/32
-    - 89.89.89.89/32
-    - 185.100.71.242/32
+    - 217.138.139.19/32
   serviceType: LoadBalancer
   ingress:
     enabled: true
