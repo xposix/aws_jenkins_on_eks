@@ -18,7 +18,7 @@ apply:
 	cd 2-k8sbase; terraform apply -auto-approve
 	aws eks --region eu-west-1 update-kubeconfig --name mytests
 	kubectl apply -f 2-k8sbase/namespace-dev.json;
-	kubectl apply -f 2-k8sbase/rbac.yaml
+	kubectl apply -f 2-k8sbase/rbac-efs.yaml
 	kubectl apply -f 2-k8sbase/configmap.yaml
 	kubectl apply -f 2-k8sbase/deployment.yaml
 deploy: apply
