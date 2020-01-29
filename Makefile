@@ -1,29 +1,31 @@
 all: init apply app-deploy
 
-authenticate:
-	aws eks --region eu-west-1 update-kubeconfig --name mytests
 mac-install:
 	brew upgrade aws-iam-authenticator helm terraform
-destroy:
-	cd 2-k8sbase; terraform destroy -auto-approve
-	cd 1-ec2base; terraform destroy -auto-approve
+
 init:
 	cd 1-ec2base; terraform init
 	cd 2-k8sbase; terraform init
 plan:
 	cd 1-ec2base; terraform plan
 	cd 2-k8sbase; terraform plan
-apply: 
-	cd 1-ec2base; terraform apply -auto-approve 
-	cd 2-k8sbase; terraform apply -auto-approve
-	aws eks --region eu-west-1 update-kubeconfig --name mytests
-	kubectl apply -f 2-k8sbase/namespace-dev.json;
-	kubectl apply -f 2-k8sbase/rbac-efs.yaml
-	kubectl apply -f 2-k8sbase/configmap.yaml
-	kubectl apply -f 2-k8sbase/deployment.yaml
 deploy: apply
+
+kubeconf_path_parameter = --kubeconfig ./kubeconfig
+apply: 
+	cd 1-ec2base; terraform apply -auto-approve
+	cd 2-k8sbase; terraform apply -auto-approve
+	kubectl apply -f 2-k8sbase/namespace-dev.json $(kubeconf_path_parameter)
+	kubectl apply -f 2-k8sbase/rbac-efs.yaml $(kubeconf_path_parameter)
+	kubectl apply -f 2-k8sbase/configmap-efs.yaml $(kubeconf_path_parameter)
+	kubectl apply -f 2-k8sbase/deployment-efs.yaml $(kubeconf_path_parameter)
 app-deploy:
-	helm upgrade --install -f 3-jenkins/jenkins_params.yaml my-jenkins stable/jenkins
+	helm upgrade --install $(kubeconf_path_parameter) -f 3-jenkins/jenkins_params.yaml my-jenkins stable/jenkins
+
+destroy: app-destroy infra-destroy
 app-destroy:
 	helm delete my-jenkins
-destroy-all: app-destroy destroy
+infra-destroy:
+	cd 2-k8sbase; terraform destroy -auto-approve
+	cd 1-ec2base; terraform destroy -auto-approve
+
