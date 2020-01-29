@@ -53,12 +53,12 @@ resource "aws_security_group_rule" "OutboundEFS" {
   security_group_id        = aws_security_group.EFS_client.id
 }
 
-resource "local_file" "configmap" {
-  content  = templatefile("${path.module}/configmap.yaml.tmpl", { fsid = aws_efs_file_system.pdl.id, region = data.aws_region.current.name })
-  filename = "${path.module}/configmap.yaml"
+resource "local_file" "configmap-efs" {
+  content  = templatefile("${path.module}/configmap-efs.yaml.tmpl", { fsid = aws_efs_file_system.pdl.id, region = data.aws_region.current.name })
+  filename = "${path.module}/configmap-efs.yaml"
 }
 
-resource "local_file" "deployment" {
-  content  = templatefile("${path.module}/deployment.yaml.tmpl", { fsid = aws_efs_file_system.pdl.id, region = data.aws_region.current.name })
-  filename = "${path.module}/deployment.yaml"
+resource "local_file" "deployment-efs" {
+  content  = templatefile("${path.module}/deployment-efs.yaml.tmpl", { fsid = aws_efs_file_system.pdl.id, region = data.aws_region.current.name })
+  filename = "${path.module}/deployment-efs.yaml"
 }
