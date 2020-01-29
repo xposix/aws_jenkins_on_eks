@@ -1,8 +1,8 @@
 module "ec2_cluster" {
   source                 = "terraform-aws-modules/ec2-instance/aws"
   version                = "~> 2.0"
-  name                   = "bastion"
-  instance_count         = 1
+  name                   = "${var.project_name}-bastion"
+  instance_count         = var.enable_bastion ? 1 : 0
   ami                    = "ami-01f14919ba412de34"
   instance_type          = "t3a.nano"
   key_name               = ""
