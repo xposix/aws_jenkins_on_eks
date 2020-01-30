@@ -1,6 +1,6 @@
 module "eks-cluster" {
-  source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v8.1.0"
-  cluster_name = "${var.project_name}"
+  source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v8.2.0"
+  cluster_name = var.project_name
   subnets      = data.terraform_remote_state.networking.outputs.private_subnets
   vpc_id       = data.terraform_remote_state.networking.outputs.vpc_id
   manage_worker_autoscaling_policy = true

@@ -6,7 +6,7 @@ resource "aws_efs_file_system" "pdl" {
   throughput_mode  = "bursting"
 
   tags = {
-    Name = "PDL"
+    Name = "${var.project_name}_PDL"
   }
 }
 
@@ -27,7 +27,7 @@ resource "aws_efs_mount_target" "az2" {
 }
 
 resource "aws_security_group" "EFS" {
-  name        = "SGEFS"
+  name        = "SGEFS-${var.project_name}"
   description = "Allow EFS inbound traffic"
   vpc_id      = data.terraform_remote_state.networking.outputs.vpc_id
 
