@@ -12,7 +12,7 @@ resource "aws_efs_file_system" "pdl" {
 
 resource "aws_efs_mount_target" "az1" {
   file_system_id = aws_efs_file_system.pdl.id
-  subnet_id      = data.terraform_remote_state.networking.outputs.sn_az1
+  subnet_id      = element("${data.terraform_remote_state.networking.outputs.private_subnets}",0)
   security_groups = [
     aws_security_group.EFS.id
   ]
@@ -20,7 +20,7 @@ resource "aws_efs_mount_target" "az1" {
 
 resource "aws_efs_mount_target" "az2" {
   file_system_id = aws_efs_file_system.pdl.id
-  subnet_id      = data.terraform_remote_state.networking.outputs.sn_az2
+  subnet_id      = element("${data.terraform_remote_state.networking.outputs.private_subnets}",1)
   security_groups = [
     aws_security_group.EFS.id
   ]
