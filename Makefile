@@ -1,7 +1,7 @@
 all: init apply app-deploy
 
 mac-install:
-	brew upgrade aws-iam-authenticator helm terraform
+	brew upgrade kubectl aws-iam-authenticator helm terraform
 
 init:
 	cd 1-ec2base; terraform init
