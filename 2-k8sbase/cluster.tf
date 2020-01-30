@@ -65,38 +65,21 @@ module "eks-cluster" {
 #   ]
 # }
 
+resource "null_resource" "subnet_tags" {
+  triggers = {
+    cluster_id     = module.eks-cluster.cluster_id
+    public_subnets = join(" ", data.terraform_remote_state.networking.outputs.public_subnets.*)
+  }
+  count = length(data.terraform_remote_state.networking.outputs.public_subnets)
+  provisioner "local-exec" {
+    command = "aws ec2 create-tags --resources ${self.triggers.public_subnets} --tags Key=kubernetes.io/cluster/${self.triggers.cluster_id},Value='shared'"
+  }
 
-resource "aws_iam_policy" "ssm_session_manager_access" {
-  name        = "ssm_session_manager_access"
-  path        = "/"
-  description = "Enable workers to be used by SSM Session Manager"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-          "ssmmessages:CreateControlChannel",
-          "ssmmessages:CreateDataChannel",
-          "ssmmessages:OpenControlChannel",
-          "ssmmessages:OpenDataChannel"
-      ],
-      "Resource": "*"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-          "s3:GetEncryptionConfiguration"
-      ],
-      "Resource": "*"
-    }
-  ]
+  provisioner "local-exec" {
+    when = destroy
+    command = "aws ec2 delete-tags --resources ${self.triggers.public_subnets} --tags Key=kubernetes.io/cluster/${self.triggers.cluster_id},Value='shared'"
 }
-EOF
 }
-
 
 resource "aws_security_group" "EFS_client" {
   name        = "${var.project_name}_EFS_client"
