@@ -5,7 +5,7 @@ module "ec2_cluster" {
   instance_count         = var.enable_bastion ? 1 : 0
   ami                    = "ami-01f14919ba412de34"
   instance_type          = "t3a.nano"
-  key_name               = ""
+  key_name               = var.bastion_pem_key
   monitoring             = false
   vpc_security_group_ids = [ aws_security_group.SGBastion.id ]
   subnet_id              = element("${module.vpc.public_subnets}",0)
