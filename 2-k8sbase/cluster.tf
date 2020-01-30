@@ -6,6 +6,14 @@ module "eks-cluster" {
   manage_worker_autoscaling_policy = true
   manage_worker_iam_resources = true
 
+  cluster_enabled_log_types = [
+    "api",
+    "audit",
+    "authenticator",
+    "controllerManager",
+    "scheduler"
+  ]
+
   workers_additional_policies = [
     aws_iam_policy.ssm_session_manager_access.arn
   ]
