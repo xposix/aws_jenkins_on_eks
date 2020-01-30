@@ -1,3 +1,11 @@
+locals {
+  pre_userdata = <<USERDATA
+  sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm 
+  sudo systemctl enable amazon-ssm-agent
+  sudo systemctl start amazon-ssm-agent
+USERDATA
+}
+
 module "eks-cluster" {
   source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v8.2.0"
   cluster_name = var.project_name
@@ -15,19 +23,25 @@ module "eks-cluster" {
   ]
 
   workers_additional_policies = [
-    aws_iam_policy.ssm_session_manager_access.arn
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   ]
+
+  workers_group_defaults = {
+    pre_userdata = local.pre_userdata
+    public_ip    = false
+  }
 
   worker_groups = [
     {
       name = "${var.project_name}_node_groups"
       instance_type = "t3a.medium"
-      asg_max_size  = 2
       autoscaling_enabled = true
-      protect_from_scale_in = true # Recommended by https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/docs/autoscaling.md
-
-      # public_ip = false
-      key_name = ""
+      asg_min_size           = 1
+      asg_desired_capacity   = 1
+      asg_max_size           = 2
+      root_volume_size       = 100
+      key_name               = var.bastion_pem_key
+      enable_monitoring      = true
       tags = [{
         key                 = "Name"
         value               = "${var.project_name}-nodes"
@@ -48,6 +62,7 @@ module "eks-cluster" {
   # map_roles = var.map_roles
 }
 
+# THIS CAN BE PASSED ON var TOO
 # variable "map_roles" {
 #   description = "Additional IAM roles to add to the aws-auth configmap."
 #   type = list(object({
@@ -78,7 +93,7 @@ resource "null_resource" "subnet_tags" {
   provisioner "local-exec" {
     when = destroy
     command = "aws ec2 delete-tags --resources ${self.triggers.public_subnets} --tags Key=kubernetes.io/cluster/${self.triggers.cluster_id},Value='shared'"
-}
+  }
 }
 
 resource "aws_security_group" "EFS_client" {
