@@ -84,6 +84,7 @@ resource "null_resource" "subnet_tags" {
   triggers = {
     cluster_id     = module.eks-cluster.cluster_id
     public_subnets = join(" ", data.terraform_remote_state.networking.outputs.public_subnets.*)
+    timestamp      = timestamp()
   }
   count = length(data.terraform_remote_state.networking.outputs.public_subnets)
   provisioner "local-exec" {
