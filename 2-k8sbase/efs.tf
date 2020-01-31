@@ -35,12 +35,10 @@ resource "aws_security_group" "EFS" {
     from_port = 2049
     to_port   = 2049
     protocol  = "tcp"
-    cidr_blocks = [
-      "0.0.0.0/0"
+
+    security_groups = [
+      aws_security_group.EFS_client.id
     ]
-    # security_groups = [
-    #   module.eks-cluster.worker_security_group_id
-    # ]
   }
 }
 
