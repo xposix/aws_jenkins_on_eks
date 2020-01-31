@@ -10,6 +10,7 @@ module "vpc" {
 
   enable_nat_gateway = true
   enable_vpn_gateway = true
+  # Only for testing purposes:
   single_nat_gateway = true
   enable_dns_hostnames = true
   enable_dns_support   = true
@@ -25,6 +26,5 @@ module "vpc" {
   tags = {
     Terraform = "true"
     Environment = "dev"
-    "kubernetes.io/cluster/mytests" = "shared"
   }
 }
