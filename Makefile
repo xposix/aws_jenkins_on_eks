@@ -15,10 +15,10 @@ kubeconf_path_parameter = --kubeconfig ./kubeconfig
 apply: 
 	cd 1-ec2base; terraform apply -auto-approve
 	cd 2-k8sbase; terraform apply -auto-approve
-	kubectl apply -f 2-k8sbase/namespace-dev.json $(kubeconf_path_parameter)
-	kubectl apply -f 2-k8sbase/rbac-efs.yaml $(kubeconf_path_parameter)
-	kubectl apply -f 2-k8sbase/configmap-efs.yaml $(kubeconf_path_parameter)
-	kubectl apply -f 2-k8sbase/deployment-efs.yaml $(kubeconf_path_parameter)
+	# kubectl apply -f 2-k8sbase/namespace-dev.json $(kubeconf_path_parameter)
+	# kubectl apply -f 2-k8sbase/rbac-efs.yaml $(kubeconf_path_parameter)
+	# kubectl apply -f 2-k8sbase/configmap-efs.yaml $(kubeconf_path_parameter)
+	# kubectl apply -f 2-k8sbase/deployment-efs.yaml $(kubeconf_path_parameter)
 app-deploy:
 	helm upgrade --install $(kubeconf_path_parameter) -f 3-jenkins/jenkins_params.yaml my-jenkins stable/jenkins
 
