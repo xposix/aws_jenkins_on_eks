@@ -1,10 +1,12 @@
 resource "kubernetes_service_account" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   metadata {
     name = "efs-provisioner"
   }
 }
 
 resource "kubernetes_deployment" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   depends_on = [
     aws_efs_mount_target.efs_mts
   ]
@@ -33,7 +35,7 @@ resource "kubernetes_deployment" "efs-provisioner" {
       }
 
       spec {
-        service_account_name            = kubernetes_service_account.efs-provisioner.metadata.0.name
+        service_account_name            = kubernetes_service_account.efs-provisioner[0].metadata.0.name
         automount_service_account_token = true
         container {
           image = "quay.io/external_storage/efs-provisioner:latest"
@@ -76,6 +78,7 @@ resource "kubernetes_deployment" "efs-provisioner" {
 }
 
 resource "kubernetes_storage_class" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   metadata {
     name = "aws-efs"
   }
@@ -83,6 +86,7 @@ resource "kubernetes_storage_class" "efs-provisioner" {
 }
 
 resource "kubernetes_persistent_volume_claim" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   depends_on = [
     kubernetes_deployment.efs-provisioner
   ]
@@ -106,6 +110,7 @@ resource "kubernetes_persistent_volume_claim" "efs-provisioner" {
 ## Authorisation
 
 resource "kubernetes_cluster_role" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   metadata {
     name = "efs-provisioner-runner"
   }
@@ -138,6 +143,7 @@ resource "kubernetes_cluster_role" "efs-provisioner" {
 }
 
 resource "kubernetes_cluster_role_binding" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   metadata {
     name = "run-efs-provisioner"
   }
@@ -155,6 +161,7 @@ resource "kubernetes_cluster_role_binding" "efs-provisioner" {
 
 
 resource "kubernetes_role" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   metadata {
     name = "leader-locking-efs-provisioner"
   }
@@ -167,6 +174,7 @@ resource "kubernetes_role" "efs-provisioner" {
 }
 
 resource "kubernetes_role_binding" "efs-provisioner" {
+  count = var.enable_efs_integration ? 1 : 0
   metadata {
     name      = "leader-locking-efs-provisioner"
     namespace = "default"
@@ -174,11 +182,11 @@ resource "kubernetes_role_binding" "efs-provisioner" {
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "Role"
-    name      = kubernetes_role.efs-provisioner.metadata.0.name
+    name      = kubernetes_role.efs-provisioner[0].metadata.0.name
   }
   subject {
     kind      = "ServiceAccount"
-    name      = kubernetes_service_account.efs-provisioner.metadata.0.name
+    name      = kubernetes_service_account.efs-provisioner[0].metadata.0.name
     namespace = "default"
   }
 }

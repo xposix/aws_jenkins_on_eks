@@ -1,3 +1,9 @@
-project_name           = "test01"
-bastion_pem_key        = ""
-enable_efs_integration = True
+project_tags = {
+  project_name = "test01"
+  environment  = "test"
+}
+
+bastion_pem_key = ""
+
+enable_efs_integration = true
+existing_efs_volume    = ""

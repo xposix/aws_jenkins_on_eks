@@ -7,12 +7,12 @@ USERDATA
 }
 
 module "eks-cluster" {
-  source = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v8.2.0"
-  cluster_name = var.project_name
-  subnets      = data.terraform_remote_state.networking.outputs.private_subnets
-  vpc_id       = data.terraform_remote_state.networking.outputs.vpc_id
+  source                           = "github.com/terraform-aws-modules/terraform-aws-eks?ref=v8.2.0"
+  cluster_name                     = var.project_tags.project_name
+  subnets                          = data.terraform_remote_state.networking.outputs.private_subnets
+  vpc_id                           = data.terraform_remote_state.networking.outputs.vpc_id
   manage_worker_autoscaling_policy = true
-  manage_worker_iam_resources = true
+  manage_worker_iam_resources      = true
 
   cluster_enabled_log_types = [
     "api",
@@ -33,18 +33,18 @@ module "eks-cluster" {
 
   worker_groups = [
     {
-      name = "${var.project_name}_node_groups"
-      instance_type = "t3a.medium"
-      autoscaling_enabled = true
-      asg_min_size           = 1
-      asg_desired_capacity   = 1
-      asg_max_size           = 2
-      root_volume_size       = 100
-      key_name               = var.bastion_pem_key
-      enable_monitoring      = true
+      name                 = "${var.project_tags.project_name}_node_groups"
+      instance_type        = "t3a.medium"
+      autoscaling_enabled  = true
+      asg_min_size         = 1
+      asg_desired_capacity = 1
+      asg_max_size         = 2
+      root_volume_size     = 100
+      key_name             = var.bastion_pem_key
+      enable_monitoring    = true
       tags = [{
         key                 = "Name"
-        value               = "${var.project_name}-nodes"
+        value               = "${var.project_tags.project_name}-eksnodes"
         propagate_at_launch = true
       }]
       additional_security_group_ids = [
@@ -53,12 +53,10 @@ module "eks-cluster" {
     }
   ]
 
-  tags = {
-    environment = "test"
-  }
+  tags = var.project_tags
 
-  write_kubeconfig    = true
-  config_output_path  = "../kubeconfig"
+  write_kubeconfig   = true
+  config_output_path = "../kubeconfig"
   # map_roles = var.map_roles
 }
 
@@ -92,18 +90,27 @@ resource "null_resource" "subnet_tags" {
   }
 
   provisioner "local-exec" {
-    when = destroy
+    when    = destroy
     command = "aws ec2 delete-tags --resources ${self.triggers.public_subnets} --tags Key=kubernetes.io/cluster/${self.triggers.cluster_id},Value='shared'"
   }
 }
 
 resource "aws_security_group" "EFS_client" {
-  name        = "${var.project_name}_EFS_client"
+  name        = "${var.project_tags.project_name}_EFS_client"
   description = "Allow EFS outbound traffic"
   vpc_id      = data.terraform_remote_state.networking.outputs.vpc_id
 }
 
-# TODO: Not sure this is necessary anymore:
+
+module "eks-efs" {
+  source                 = "./modules/eks-efs"
+  project_tags           = var.project_tags
+  subnet_ids             = data.terraform_remote_state.networking.outputs.private_subnets
+  client_sg              = aws_security_group.EFS_client.id
+  vpc_id                 = data.terraform_remote_state.networking.outputs.vpc_id
+  enable_efs_integration = var.enable_efs_integration
+}
+
 
 data "aws_eks_cluster" "cluster" {
   name = module.eks-cluster.cluster_id
