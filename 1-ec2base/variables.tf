@@ -1,5 +1,5 @@
 variable "project_name" {
-  type    = string
+  type = string
 }
 
 variable "enable_bastion" {
@@ -8,5 +8,5 @@ variable "enable_bastion" {
 }
 
 variable "bastion_pem_key" {
-  type    = string
+  type = string
 }
