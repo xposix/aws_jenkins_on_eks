@@ -43,7 +43,7 @@ resource "kubernetes_deployment" "efs-provisioner" {
 
           env {
             name  = "FILE_SYSTEM_ID"
-            value = local.efs_volume_id
+            value = var.existing_efs_volume != "" ? var.existing_efs_volume : aws_efs_file_system.pdl[0].id
           }
           env {
             name  = "AWS_REGION"
@@ -68,7 +68,7 @@ resource "kubernetes_deployment" "efs-provisioner" {
         volume {
           name = "pv-volume"
           nfs {
-            server = "${local.efs_volume_id}.efs.${data.aws_region.current.name}.amazonaws.com"
+            server = "${var.existing_efs_volume != "" ? var.existing_efs_volume : aws_efs_file_system.pdl[0].id}.efs.${data.aws_region.current.name}.amazonaws.com"
             path   = "/"
           }
         }

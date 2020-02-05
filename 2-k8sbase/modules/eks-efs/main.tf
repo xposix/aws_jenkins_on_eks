@@ -1,7 +1,6 @@
 data "aws_region" "current" {}
 
 locals {
-  efs_volume_id     = var.existing_efs_volume != "" ? var.existing_efs_volume : aws_efs_file_system.pdl[0].id
   create_efs_volume = (var.existing_efs_volume == "") && var.enable_efs_integration ? 1 : 0
   subnets_to_create = var.enable_efs_integration ? var.subnet_ids : []
 }
@@ -18,7 +17,7 @@ resource "aws_efs_file_system" "pdl" {
 
 resource "aws_efs_mount_target" "efs_mts" {
   for_each       = toset(local.subnets_to_create)
-  file_system_id = local.efs_volume_id
+  file_system_id = var.existing_efs_volume != "" ? var.existing_efs_volume : aws_efs_file_system.pdl[0].id
   subnet_id      = each.value
   security_groups = [
     aws_security_group.EFSEndpoints[0].id
