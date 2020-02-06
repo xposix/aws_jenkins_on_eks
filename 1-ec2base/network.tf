@@ -11,11 +11,11 @@ module "vpc" {
   enable_nat_gateway = true
   enable_vpn_gateway = true
   # Only for testing purposes:
-  single_nat_gateway = true
+  single_nat_gateway   = true
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  private_subnet_tags	= {
+  private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = "1"
   }
 
@@ -24,7 +24,7 @@ module "vpc" {
   }
 
   tags = {
-    Terraform = "true"
+    Terraform   = "true"
     Environment = "dev"
   }
 }

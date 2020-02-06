@@ -7,8 +7,8 @@ module "ec2_cluster" {
   instance_type          = "t3a.nano"
   key_name               = var.bastion_pem_key
   monitoring             = false
-  vpc_security_group_ids = [ aws_security_group.SGBastion.id ]
-  subnet_id              = element("${module.vpc.public_subnets}",0)
+  vpc_security_group_ids = [aws_security_group.SGBastion.id]
+  subnet_id              = element("${module.vpc.public_subnets}", 0)
 
   tags = {
     Environment = "dev"
@@ -25,13 +25,13 @@ resource "aws_security_group" "SGBastion" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = [ "77.97.149.36/32" ]
+    cidr_blocks = ["77.97.149.36/32"]
   }
 
   egress {
-    from_port       = 0
-    to_port         = 0
-    protocol        = "-1"
-    cidr_blocks     = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
