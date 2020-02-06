@@ -1,6 +1,6 @@
 .terraform
 terraform.tfstate.backup
 terraform.tfstate
-2-k8sbase/configmap-efs.yaml
-2-k8sbase/deployment-efs.yaml
+2-k8sbase/kubeautoscaler-conf.yaml
 kubeconfig
+.DS_Store
