@@ -1,3 +1,7 @@
+# Types of lines:
+#  * Starting with (-), the flow continues even when the command fails.
+#  * Starting with (@), the command is not printed on the screen. 
+
 all: init apply app-deploy
 
 mac-install:
@@ -19,6 +23,8 @@ kubeconf_path_parameter = --kubeconfig ./kubeconfig
 k8sbase-deploy:
 	cd 2-k8sbase; terraform apply -auto-approve
 	helm upgrade --install $(kubeconf_path_parameter) dashboard stable/kubernetes-dashboard --namespace k8sdashboard --set rbac.clusterAdminRole=true
+	helm upgrade --install $(kubeconf_path_parameter) cluster-autoscaler  stable/cluster-autoscaler --namespace kube-system --values=kubeautoscaler-conf.yaml
+
 
 apply: ec2base-deploy k8sbase-deploy
 	# kubectl apply -f 2-k8sbase/namespace-dev.json $(kubeconf_path_parameter)
@@ -32,10 +38,10 @@ app-deploy:
 destroy: app-destroy infra-destroy
 
 app-destroy:
-	helm delete jenkins
+	-helm delete jenkins
 
 infra-destroy:
-	helm delete dashboard
+	-helm delete cluster-autoscaler -n kube-system
 	cd 2-k8sbase; terraform destroy -auto-approve
 	cd 1-ec2base; terraform destroy -auto-approve
 

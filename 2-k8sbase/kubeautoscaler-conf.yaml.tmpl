@@ -1,0 +1,13 @@
+awsRegion: ${region}
+
+rbac:
+  create: true
+  serviceAccountAnnotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::${account_id}:role/cluster-autoscaler"
+
+autoDiscovery:
+  clusterName: ${cluster_name}
+  enabled: true
+
+image:
+  tag: v1.14.7

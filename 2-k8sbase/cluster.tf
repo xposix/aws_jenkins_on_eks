@@ -1,3 +1,6 @@
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
 locals {
   pre_userdata = <<USERDATA
   sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm 
@@ -11,6 +14,7 @@ module "eks-cluster" {
   cluster_name                     = var.project_tags.project_name
   subnets                          = data.terraform_remote_state.networking.outputs.private_subnets
   vpc_id                           = data.terraform_remote_state.networking.outputs.vpc_id
+  enable_irsa                      = true
   manage_worker_autoscaling_policy = true
   manage_worker_iam_resources      = true
 
@@ -33,20 +37,32 @@ module "eks-cluster" {
 
   worker_groups = [
     {
-      name                 = "${var.project_tags.project_name}_node_groups"
+      name                 = "${var.project_tags.project_name}_eksnode_groups"
       instance_type        = "t3a.medium"
       autoscaling_enabled  = true
       asg_min_size         = 1
       asg_desired_capacity = 1
-      asg_max_size         = 2
+      asg_max_size         = 8
       root_volume_size     = 100
       key_name             = var.bastion_pem_key
       enable_monitoring    = true
-      tags = [{
-        key                 = "Name"
-        value               = "${var.project_tags.project_name}-eksnodes"
-        propagate_at_launch = true
-      }]
+      tags = [
+        {
+          key                 = "Name"
+          value               = "${var.project_tags.project_name}-eksnodes"
+          propagate_at_launch = true
+        },
+        {
+          "key"                 = "k8s.io/cluster-autoscaler/enabled"
+          "value"               = "true"
+          "propagate_at_launch" = "false"
+        },
+        {
+          "key"                 = "k8s.io/cluster-autoscaler/${var.project_tags.project_name}"
+          "value"               = "true"
+          "propagate_at_launch" = "false"
+        }
+      ]
       additional_security_group_ids = [
         aws_security_group.EFS_client.id
       ]
@@ -95,12 +111,12 @@ resource "null_resource" "subnet_tags" {
   }
 }
 
+### EFS MODULE
 resource "aws_security_group" "EFS_client" {
   name        = "${var.project_tags.project_name}_EFS_client"
   description = "Allow EFS outbound traffic"
   vpc_id      = data.terraform_remote_state.networking.outputs.vpc_id
 }
-
 
 module "eks-efs" {
   source                 = "./modules/eks-efs"
@@ -126,4 +142,80 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.cluster.token
   load_config_file       = false
   version                = "~> 1.9"
+}
+
+
+### K8s AUTOSCALER
+
+locals {
+  k8s_service_account_namespace = "kube-system"
+  k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler"
+}
+
+resource "local_file" "deployment" {
+  content = templatefile("${path.module}/kubeautoscaler-conf.yaml.tmpl", {
+    account_id   = data.aws_caller_identity.current.account_id,
+    region       = data.aws_region.current.name,
+    cluster_name = module.eks-cluster.cluster_id
+  })
+  filename = "${path.module}/kubeautoscaler-conf.yaml"
+}
+
+
+module "iam_assumable_role_admin" {
+  source                        = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+  version                       = "~> v2.6.0"
+  create_role                   = true
+  role_name                     = "cluster-autoscaler"
+  provider_url                  = replace(module.eks-cluster.cluster_oidc_issuer_url, "https://", "")
+  role_policy_arns              = [aws_iam_policy.cluster_autoscaler.arn]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:${local.k8s_service_account_namespace}:${local.k8s_service_account_name}"]
+}
+
+resource "aws_iam_policy" "cluster_autoscaler" {
+  name_prefix = "cluster-autoscaler"
+  description = "EKS cluster-autoscaler policy for cluster ${module.eks-cluster.cluster_id}"
+  policy      = data.aws_iam_policy_document.cluster_autoscaler.json
+}
+
+data "aws_iam_policy_document" "cluster_autoscaler" {
+  statement {
+    sid    = "clusterAutoscalerAll"
+    effect = "Allow"
+
+    actions = [
+      "autoscaling:DescribeAutoScalingGroups",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeTags",
+      "ec2:DescribeLaunchTemplateVersions",
+    ]
+
+    resources = ["*"]
+  }
+
+  statement {
+    sid    = "clusterAutoscalerOwn"
+    effect = "Allow"
+
+    actions = [
+      "autoscaling:SetDesiredCapacity",
+      "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "autoscaling:UpdateAutoScalingGroup",
+    ]
+
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "autoscaling:ResourceTag/kubernetes.io/cluster/${module.eks-cluster.cluster_id}"
+      values   = ["owned"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/enabled"
+      values   = ["true"]
+    }
+  }
 }
