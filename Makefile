@@ -42,6 +42,7 @@ app-destroy:
 
 infra-destroy:
 	-helm delete cluster-autoscaler -n kube-system
+	-helm delete dashboard -n k8sdashboard
 	cd 2-k8sbase; terraform destroy -auto-approve
 	cd 1-ec2base; terraform destroy -auto-approve
 
