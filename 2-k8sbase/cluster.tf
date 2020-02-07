@@ -37,15 +37,14 @@ module "eks-cluster" {
 
   worker_groups = [
     {
-      name                 = "${var.project_tags.project_name}_eksnode_groups"
-      instance_type        = var.workers_instance_type
-      autoscaling_enabled  = true
-      asg_min_size         = 1
-      asg_desired_capacity = 1
-      asg_max_size         = 8
-      root_volume_size     = 100
-      key_name             = var.bastion_pem_key
-      enable_monitoring    = true
+      name                = "${var.project_tags.project_name}_eksnode_groups"
+      instance_type       = var.workers_instance_type
+      autoscaling_enabled = true
+      asg_min_size        = var.asg_min_size
+      asg_max_size        = var.asg_max_size
+      root_volume_size    = var.workers_root_volume_size
+      key_name            = var.workers_pem_key
+      enable_monitoring   = true
       tags = [
         {
           key                 = "Name"

@@ -3,12 +3,31 @@ variable "project_tags" {
   description = "A key/value map containing tags to add to all resources"
 }
 
-variable "bastion_pem_key" {
-  type = string
+variable "workers_pem_key" {
+  type        = string
+  description = "PEM key for SSH access to the workers instances."
+  default     = ""
 }
 
 variable "workers_instance_type" {
-  type = string
+  type        = string
+  description = "Instance type for the EKS workers"
+}
+
+variable "asg_min_size" {
+  type        = number
+  description = "Minimum number of instances in the workers autoscaling group."
+}
+
+variable "asg_max_size" {
+  type        = number
+  description = "Maximum number of instances in the workers autoscaling group."
+}
+
+variable "workers_root_volume_size" {
+  type        = number
+  description = "Size of the root volume desired for the EKS workers."
+  default     = 100
 }
 
 variable "enable_efs_integration" {

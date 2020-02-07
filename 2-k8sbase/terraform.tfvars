@@ -4,7 +4,9 @@ project_tags = {
 }
 
 workers_instance_type = "t3a.medium"
-bastion_pem_key       = ""
+asg_min_size          = 1
+asg_max_size          = 4
+workers_pem_key       = ""
 
 enable_efs_integration = true
 existing_efs_volume    = ""
