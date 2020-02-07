@@ -30,9 +30,25 @@ variable "workers_root_volume_size" {
   default     = 100
 }
 
+variable "enable_eks_public_endpoint" {
+  type        = bool
+  description = "Whether to expose the EKS endpoint to the Internet."
+}
+
+variable "eks_public_access_cidrs" {
+  type        = list(string)
+  description = "List of IPs that have access to public endpoint."
+  default     = ["0.0.0.0/0"]
+}
+
+variable "enable_eks_private_endpoint" {
+  type        = bool
+  description = "Whether to create an internal EKS endpoint for access from the VPC."
+}
+
 variable "enable_efs_integration" {
   type        = bool
-  description = "Whether to deploy an EFS volume to provide support for ReadWriteMany volumes"
+  description = "Whether to deploy an EFS volume to provide support for ReadWriteMany volumes."
 }
 
 variable "existing_efs_volume" {

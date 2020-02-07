@@ -18,6 +18,11 @@ module "eks-cluster" {
   manage_worker_autoscaling_policy = true
   manage_worker_iam_resources      = true
 
+  cluster_endpoint_private_access      = var.enable_eks_private_endpoint
+  cluster_endpoint_public_access       = var.enable_eks_public_endpoint
+  cluster_endpoint_public_access_cidrs = var.eks_public_access_cidrs
+
+
   cluster_enabled_log_types = [
     "api",
     "audit",

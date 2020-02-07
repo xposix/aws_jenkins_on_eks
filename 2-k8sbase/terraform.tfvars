@@ -8,6 +8,10 @@ asg_min_size          = 1
 asg_max_size          = 4
 workers_pem_key       = ""
 
+enable_eks_private_endpoint = false
+enable_eks_public_endpoint  = true
+eks_public_access_cidrs     = ["0.0.0.0/0"]
+
 enable_efs_integration = true
 existing_efs_volume    = ""
 
