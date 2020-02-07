@@ -2,9 +2,15 @@ variable "project_tags" {
   type        = map
   description = "A key/value map containing tags to add to all resources"
 }
+
 variable "bastion_pem_key" {
   type = string
 }
+
+variable "workers_instance_type" {
+  type = string
+}
+
 variable "enable_efs_integration" {
   type        = bool
   description = "Whether to deploy an EFS volume to provide support for ReadWriteMany volumes"

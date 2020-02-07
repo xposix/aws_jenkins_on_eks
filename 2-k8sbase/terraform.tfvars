@@ -3,7 +3,8 @@ project_tags = {
   environment  = "test"
 }
 
-bastion_pem_key = ""
+workers_instance_type = "t3a.medium"
+bastion_pem_key       = ""
 
 enable_efs_integration = true
 existing_efs_volume    = ""

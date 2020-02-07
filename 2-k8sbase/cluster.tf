@@ -38,7 +38,7 @@ module "eks-cluster" {
   worker_groups = [
     {
       name                 = "${var.project_tags.project_name}_eksnode_groups"
-      instance_type        = "t3a.medium"
+      instance_type        = var.workers_instance_type
       autoscaling_enabled  = true
       asg_min_size         = 1
       asg_desired_capacity = 1
@@ -238,3 +238,22 @@ resource "aws_autoscaling_notification" "autoscaling_notifications" {
   topic_arn = var.sns_notification_topic_arn
 }
 
+
+resource "aws_cloudwatch_metric_alarm" "ec2_instance_t_credits" {
+  count               = var.sns_notification_topic_arn != "" && length(regex("^t[[:digit:]]", var.workers_instance_type)) > 0 ? 1 : 0
+  alarm_name          = "t_credits"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "5"
+  metric_name         = "CPUCreditBalance"
+  namespace           = "AWS/EC2"
+  period              = "60"
+  statistic           = "Minimum"
+  threshold           = 50
+  alarm_description   = "A t-instance running out of credits."
+  alarm_actions = [
+    var.sns_notification_topic_arn
+  ]
+  dimensions = {
+    AutoScalingGroupName = module.eks-cluster.workers_asg_names[0]
+  }
+}
