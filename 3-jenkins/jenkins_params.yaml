@@ -11,7 +11,6 @@ master:
       memory: 4096Mi
   loadBalancerSourceRanges:
     - 77.97.149.36/32
-    - 217.138.139.19/32
   serviceType: LoadBalancer
   ingress:
     enabled: true
