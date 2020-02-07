@@ -51,3 +51,59 @@ resource "aws_security_group_rule" "OutboundEFS" {
   security_group_id        = var.client_sg
 }
 
+resource "aws_cloudwatch_metric_alarm" "efs_burstcreditbalance" {
+  count               = var.sns_notification_topic_arn != "" ? 1 : 0
+  alarm_name          = "efs_burstcreditbalance"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "10"
+  metric_name         = "BurstCreditBalance"
+  namespace           = "AWS/EFS"
+  period              = "120"
+  statistic           = "Average"
+  threshold           = 1.5 * pow(10, 12) # 1.5 TiB
+  alarm_description   = "EFS credits usage"
+  alarm_actions = [
+    var.sns_notification_topic_arn
+  ]
+  dimensions = {
+    FileSystemId = var.existing_efs_volume != "" ? var.existing_efs_volume : aws_efs_file_system.pdl[0].id
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "efs_percentiolimit" {
+  count               = var.sns_notification_topic_arn != "" ? 1 : 0
+  alarm_name          = "efs_percentiolimit"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "4"
+  metric_name         = "PercentIOLimit"
+  namespace           = "AWS/EFS"
+  period              = "120"
+  statistic           = "Maximum"
+  threshold           = 95
+  alarm_description   = "EFS IO limit percentage"
+  alarm_actions = [
+    var.sns_notification_topic_arn
+  ]
+  dimensions = {
+    FileSystemId = var.existing_efs_volume != "" ? var.existing_efs_volume : aws_efs_file_system.pdl[0].id
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "efs_permittedthroughput" {
+  count               = var.sns_notification_topic_arn != "" ? 1 : 0
+  alarm_name          = "efs_permittedthroughput"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = "10"
+  metric_name         = "PermittedThroughput"
+  namespace           = "AWS/EFS"
+  period              = "180"
+  statistic           = "Minimum"
+  threshold           = 80
+  alarm_description   = "EFS IO limit in MB/s"
+  alarm_actions = [
+    var.sns_notification_topic_arn
+  ]
+  dimensions = {
+    FileSystemId = var.existing_efs_volume != "" ? var.existing_efs_volume : aws_efs_file_system.pdl[0].id
+  }
+}

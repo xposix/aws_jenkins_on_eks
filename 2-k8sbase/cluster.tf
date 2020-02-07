@@ -66,6 +66,7 @@ module "eks-cluster" {
       additional_security_group_ids = [
         aws_security_group.EFS_client.id
       ]
+      sns_notification_topic_arn = var.sns_notification_topic_arn
     }
   ]
 
@@ -219,3 +220,21 @@ data "aws_iam_policy_document" "cluster_autoscaler" {
     }
   }
 }
+
+
+### NOTIFICATIONS
+resource "aws_autoscaling_notification" "autoscaling_notifications" {
+  count = var.sns_notification_topic_arn != "" ? 1 : 0
+
+  group_names = [
+    "${module.eks-cluster.workers_asg_arns}"
+  ]
+  notifications = [
+    "autoscaling:EC2_INSTANCE_LAUNCH",
+    "autoscaling:EC2_INSTANCE_TERMINATE",
+    "autoscaling:EC2_INSTANCE_LAUNCH_ERROR",
+    "autoscaling:EC2_INSTANCE_TERMINATE_ERROR",
+  ]
+  topic_arn = var.sns_notification_topic_arn
+}
+

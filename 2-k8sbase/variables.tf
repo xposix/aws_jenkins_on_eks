@@ -15,3 +15,10 @@ variable "existing_efs_volume" {
   type        = string
   default     = ""
 }
+
+variable "sns_notification_topic_arn" {
+  description = "SNS notification topic to send alerts to Slack"
+  type        = string
+  default     = ""
+}
+
